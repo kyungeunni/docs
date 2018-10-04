@@ -18,24 +18,26 @@ description: Nuxt는 강력한 에셋 처리를 위해 기본적으로 Webpack�
 ----| index.vue
 ```
 
-만약 CSS에서 `url('~assets/image.png')` 로 사용했다면 `require('~assets/image.png')`로 변환됩니다.
+만약 CSS에서 `url('~assets/image.png')` 로 사용했다면 `require('~/assets/image.png')`로 변환됩니다.
+
+> Nuxt 2.0 부터는 css-loader의 업데이트로 인해 <url> CSS의 데이터 타입, 예를 들어 background: url("~assets/banner.svg"), 에 반드시 `~assets` (슬래쉬 없이)을 사용해야합니다.
 
 또한 만약 `page/index.vue`에서 아래와 같이 사용했다면,:
 ```html
 <template>
-  <img src="~assets/image.png">
+  <img src="~/assets/image.png">
 </template>
 ```
 
 아래와 같이 컴파일 될 것입니다:
 
 ```js
-createElement('img', { attrs: { src: require('~assets/image.png') }})
+createElement('img', { attrs: { src: require('~/assets/image.png') }})
 ```
 
 `.png` 파일은 자바스크립트 파일이 아니기 때문에 nuxt.js는 이를 처리하기 위해 [file-loader](https://github.com/webpack/file-loader)와 [url-loader](https://github.com/webpack/url-loader)를 사용합니다.
 
-이럴 때 얻게되는 이익은 아래와 같습니다:
+file-loader 와 url-loader 를 사용함으로써 얻게되는 이익은 아래와 같습니다:
 - `file-loader`는 에셋 파일을 복사하고 배치할 위치를 지정하고 캐싱을 위해 버전 해시를 사용하여 이름을 지정하는 방법을 제공합니다.
 - `url-loader`는 한계치보다 작은 용량의 파일을 base-64 데이터 URL로 인라인할 수 있습니다. 이렇게하면 작은 파일에 대한 HTTP 요청 수를 줄일 수 있습니다. 만약 파일이 한계치보다 크면 자동으로 다시 `file-loader`로 폴백합니다.
 
@@ -47,7 +49,7 @@ createElement('img', { attrs: { src: require('~assets/image.png') }})
     test: /\.(png|jpe?g|gif|svg)$/,
     loader: 'url-loader',
     query: {
-      limit: 1000, // 1KO
+      limit: 1000, // 1KB
       name: 'img/[name].[hash:7].[ext]'
     }
   },
@@ -55,20 +57,20 @@ createElement('img', { attrs: { src: require('~assets/image.png') }})
     test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
     loader: 'url-loader',
     query: {
-      limit: 1000, // 1 KO
+      limit: 1000, // 1KB
       name: 'fonts/[name].[hash:7].[ext]'
     }
   }
 ]
 ```
 
-1 KO 아래의 모든 파일은 base-64 데이터 URL로 인라인 되며, 이미지와 폰트는 대응하는 폴더(`.nuxt` 폴더 하위)로 캐싱을 위한 버전 해시를 포함한 이름으로 복사됩니다.
+1KB 아래의 모든 파일은 base-64 데이터 URL로 인라인 되며, 이미지와 폰트는 대응하는 폴더(`.nuxt` 폴더 하위)로 캐싱을 위한 버전 해시를 포함한 이름으로 복사됩니다.
 
 `nuxt` 어플리케이션이 실행될 때, `page/index.vue`에 아래와 같은 템플릿은:
 
 ```html
 <template>
-  <img src="~assets/image.png">
+  <img src="~/assets/image.png">
 </template>
 ```
 
@@ -77,7 +79,7 @@ createElement('img', { attrs: { src: require('~assets/image.png') }})
 <img src="/_nuxt/img/image.0c61159.png">
 ```
 
-만약 로더들을 업데이트하거나 비활성화하고 싶다면 [로더 설정](/api/configuration-build#loaders) 페이지를 참고합니다.
+만약 로더들을 업데이트하거나 비활성화하고 싶다면 [build.extend](/api/configuration-build#extend)를 사용하세요.
 
 ## 정적 파일 사용
 
